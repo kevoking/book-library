@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form"
 import myHeaders, { API_URL } from "../utils/api"
 import { Link } from "react-router-dom"
 import htmlDecode from "../utils/decodeHtml"
+import Spinner from "../components/spinner"
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -113,9 +114,7 @@ function Authors() {
     return (
         <>
             {isLoading ?
-                <div>
-                    <p>Creating author, please wait ....</p>
-                </div>
+                <Spinner />
             :
                 <div>
 

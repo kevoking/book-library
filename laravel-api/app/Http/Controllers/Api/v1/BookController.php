@@ -16,7 +16,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        return BookResource::collection(Book::query()->with('author')->paginate(10));
+        return BookResource::collection(Book::query()->with('author')->orderby('created_at', 'desc')->paginate(10));
     }
 
     /**

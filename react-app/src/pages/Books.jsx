@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form"
 import myHeaders, { API_URL } from "../utils/api"
 import { Link } from "react-router-dom"
 import htmlDecode from "../utils/decodeHtml"
+import Spinner from "../components/spinner"
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -62,7 +63,7 @@ function Books() {
                 // hide progress bar
                 setIsLoading(false)
                 // reload the books table
-                getBooks()
+                getBooks(API_URL + "books")
             })
             .then(result => console.log(result))
             .catch(error => {
@@ -120,9 +121,7 @@ function Books() {
     return (
         <>
             {isLoading ?
-                <div>
-                    <p>Creating book, please wait ....</p>
-                </div>
+                <Spinner/>
             :
                 <div>
 
