@@ -1,14 +1,22 @@
 import { Dialog, Transition } from "@headlessui/react"
 import { Fragment, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
-import myHeaders from "../utils/api"
+import myHeaders, { API_URL } from "../utils/api"
+import { Link } from "react-router-dom"
+import htmlDecode from "../utils/decodeHtml"
+
+function classNames(...classes) {
+    return classes.filter(Boolean).join(' ')
+}
 
 function Books() {
-
+    console.log(import.meta.env.API_URL) 
     // array to hold a list of authors received from the server
     const [authorList, setAuthors] = useState([])
     // array to hold a list of books received from the server
     const [bookList, setBooks] = useState([])
+    const [pagination, setPagination] = useState()
+
     // boolean to show/hide the create author form modal
     const [isOpen, setIsOpen] = useState(false)
 
@@ -45,7 +53,7 @@ function Books() {
         }
 
         // make a request to the api
-        fetch("http://127.0.0.1:8000/api/v1/books", requestOptions)
+        fetch(API_URL + "books", requestOptions)
             .then(response => {
                 // on response received from the request
                 response.text()
@@ -65,6 +73,14 @@ function Books() {
             })
     }
 
+    function nextPage(link) {
+        
+        console.log(link)
+        if (link["url"] != null && !link["active"]) {
+            getAuthors(link["url"])
+        }
+    }
+
     function closeModal() {
         setIsOpen(false)
     }
@@ -74,23 +90,24 @@ function Books() {
     }
 
     useEffect(() => {
-        getBooks()
+        getBooks(API_URL + "books")
         getAuthors()
     }, [])
 
-    function getBooks() {
-        fetch("http://127.0.0.1:8000/api/v1/books")
+    function getBooks(url) {
+        fetch(url)
             .then((res) => {
                 return res.json()
             })
             .then((data) => {
                 console.log(data["data"])
                 setBooks(data["data"])
+                setPagination(data["meta"])
             })
     }
 
     function getAuthors() {
-        fetch("http://127.0.0.1:8000/api/v1/authors")
+        fetch(API_URL + "authors")
             .then((res) => {
                 return res.json()
             })
@@ -110,7 +127,7 @@ function Books() {
                 <div>
 
                     {/* display a table to list the books */}
-                    <div className="relative overflow-x-auto shadow-md sm:rounded-lg border border-gray-200">
+                    <div className="relative overflow-x-auto shadow-md sm:rounded-lg border border-gray-100">
                         <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between p-4">
                             <div></div>
                             <div>
@@ -156,16 +173,56 @@ function Books() {
                                         {book["isbn"]}
                                     </td>
                                     <td className="px-6 py-4">
-                                        {book["author"]["name"]}
+                                        {book["author"] && <span>{book["author"]["name"]}</span>}
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">View</a>
+                                        <Link to={'/books/' + book["id"]} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">View</Link>
                                     </td>
                                 </tr>
                             )}
                                 
                             </tbody>
                         </table>
+                        {pagination != null &&
+                            <nav className="flex items-center flex-column flex-wrap md:flex-row justify-between p-4" aria-label="Table navigation">
+                                <span className="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto">
+                                    Showing <span className="font-semibold text-gray-900 dark:text-white">
+                                        {pagination["from"]}-{pagination["to"]}
+                                    </span> of <span className="font-semibold text-gray-900 dark:text-white">
+                                        {pagination["total"]}
+                                    </span>
+                                </span>
+                                <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
+                                    
+                                    {pagination["links"].map((link, index) => 
+                                        <li
+                                            key={index}
+                                        >
+                                            <button                                                
+                                                className={
+                                                    classNames(
+                                                        "pagination-link",
+                                                        (index == 0)
+                                                        ? "rounded-s-lg"
+                                                        : "",
+                                                        (index == (pagination["links"].length -1))
+                                                        ? "rounded-e-lg"
+                                                        : "",
+                                                        link["active"]
+                                                        ? "text-blue-600 bg-blue-50"
+                                                        : ""
+                                                    )
+                                                }
+                                                onClick={() => nextPage(link)}
+                                            >
+                                                {htmlDecode(link["label"])}
+                                            </button>
+                                        </li>
+                                    )}
+                                                                        
+                                </ul>
+                            </nav>
+                        }
                     </div>
 
                     {/* show a form to create a book in a dialog */}

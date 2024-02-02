@@ -18,8 +18,17 @@ class Author extends Model
         'genre'
     ];
 
+    protected $appends = [
+        'book_count'
+    ];
+
     public function books(): HasMany
     {
         return $this->hasMany(Book::class);
+    }
+
+    public function getBookCountAttribute(): int
+    {
+        return $this->books->count();
     }
 }

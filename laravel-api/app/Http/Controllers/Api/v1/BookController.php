@@ -24,7 +24,8 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
-        return BookResource::make($book);
+        $data = Book::with('author')->find($book->id);
+        return BookResource::make($data);
     }
 
     /**

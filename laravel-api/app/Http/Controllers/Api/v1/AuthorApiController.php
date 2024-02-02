@@ -15,7 +15,7 @@ class AuthorApiController extends Controller
      */
     public function index()
     {
-        return AuthorResource::collection(Author::query()->orderby('created_at', 'desc')->get());
+        return AuthorResource::collection(Author::query()->orderby('created_at', 'desc')->paginate(10));
     }
 
     /**
