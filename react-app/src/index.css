@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .input {
+        @apply p-2 rounded-md border border-gray-300 w-full
+    }
+    .input-error {
+      @apply font-medium text-sm text-red-500;
+    }
+}
